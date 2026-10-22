@@ -72,3 +72,7 @@ jobs:
 
       - name: Run Super Linter
         uses: super-linter/super-linter@2da136927bd4a73596db63044b504547c62cb854 # v9.0.0
+        env:
+          # Super Linter v9 requires an explicit token to publish status
+          # reports and pull request summaries.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
