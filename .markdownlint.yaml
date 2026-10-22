@@ -1,0 +1,17 @@
+# Markdown linting rules for this repository.
+# The prose is wrapped at 100 characters to match the line length used by
+# ruff, mypy, and the rest of the project.
+default: true
+line-length:
+  line_length: 100
+  code_blocks: false
+  tables: false
+# A bare URL in prose is not a defect; the repository uses them in tables.
+MD034: false
+# Duplicate headings are common in the reference sections of the docs.
+MD024:
+  siblings_only: true
+# The first line of a file is allowed to be a heading.
+MD041: false
+# Inline HTML is used deliberately in the MkDocs configuration notes.
+MD033: false

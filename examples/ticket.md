@@ -16,26 +16,29 @@ updated_at: "2026-10-22T07:55:03.757Z"
 ---
 
 ## Description
-Expose `GET /healthz` that returns the request id assigned by the edge proxy.
 
 The edge proxy sets `X-Request-Id` on every response. The health endpoint reads that header and
 returns it unchanged, so a caller can correlate a health check with the proxy logs.
 
 ## Tasks
+
 - [x] Register the /healthz route in router.py
 - [x] Read the X-Request-Id header in middleware.py
 - [ ] Add a unit test for the health endpoint
 - [ ] Write the operator runbook entry
 
 ## Dependencies
+
 - M-1000 (edge proxy header contract, completed)
 
 ## Files Created
+
 - `repo/api/router.py` - route table with the /healthz entry
 - `repo/api/middleware.py` - request id middleware
 - `repo/api/tests/test_healthz.py` - health endpoint test
 
 ## Evidence Log
+
 | Timestamp | Actor | Action | Evidence |
 |-----------|-------|--------|----------|
 | 2026-10-22T07:54:58Z | terminal-1 | started | acquired lease on M-1001 |
@@ -43,6 +46,7 @@ returns it unchanged, so a caller can correlate a health check with the proxy lo
 | 2026-10-22T07:55:03Z | terminal-1 | checkpoint | diff 8ab3e1: middleware reads X-Request-Id |
 
 ## Acceptance Criteria
+
 - [ ] GET /healthz returns 200 with the X-Request-Id header
 - [ ] A unit test covers the endpoint
 
@@ -92,6 +96,7 @@ The body is what `build_dag()` parses. Only two sections have a defined syntax.
 ```text
 - [ ] Add a unit test for the health endpoint
 - [x] Register the /healthz route in router.py
+
 ```
 
 The bullet may be `-` or `*`. The box may be `[ ]`, `[x]`, or `[X]`. A ticked box marks the node
@@ -101,6 +106,7 @@ A dependency clause may follow the text:
 
 ```text
 - [ ] Write the unit test requires n03-add-a-unit-test-for-the-health-endpoint
+
 ```
 
 The keywords are `depends on`, `requires`, and `after` (case-insensitive). Ids are alphanumeric with
@@ -111,6 +117,7 @@ The keywords are `depends on`, `requires`, and `after` (case-insensitive). Ids a
 ```text
 - `repo/api/router.py` - route table with the /healthz entry
 - repo/api/plain.py
+
 ```
 
 The path may be backticked or bare. The note follows a dash, en dash, em dash, or colon. The heading

@@ -1,6 +1,7 @@
 # El Hidratador Wiki
 
-Welcome to the working wiki for **El Hidratador**, the context expansion and execution staging engine that sits between the Ticket Board and Taskrivet.
+Welcome to the working wiki for **El Hidratador**, the context expansion and execution
+staging engine that sits between the Ticket Board and Taskrivet.
 
 ## Start here
 

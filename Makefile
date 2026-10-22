@@ -1,4 +1,4 @@
-.PHONY: help install dev test lint format typecheck coverage check build clean docs serve wiki docker-build docker-run
+.PHONY: help install dev test lint lint-docs format typecheck coverage check build clean docs serve wiki docker-build docker-run
 
 PYTHON ?= python3
 PACKAGE := el_hidratador
@@ -18,6 +18,11 @@ test: ## Run the test suite
 lint: ## Lint the package
 	ruff check $(PACKAGE)/ tests/
 
+lint-docs: ## Lint the Markdown, the YAML, and the shell scripts
+	npx --yes markdownlint-cli2@0.18.1 "**/*.md" "#node_modules"
+	python -m yamllint --strict -c .yamllint.yaml .
+	shellcheck --severity=style scripts/*.sh
+
 format: ## Format the package
 	ruff format $(PACKAGE)/ tests/
 
@@ -31,7 +36,7 @@ coverage: ## Run the test suite with a coverage report
 	$(PYTHON) -m coverage run -m unittest discover -s tests
 	$(PYTHON) -m coverage report --show-missing
 
-check: lint format-check typecheck test ## Run every check the CI runs
+check: lint lint-docs format-check typecheck test ## Run every check the CI runs
 
 build: ## Build the sdist and the wheel
 	$(PYTHON) -m pip install --upgrade build

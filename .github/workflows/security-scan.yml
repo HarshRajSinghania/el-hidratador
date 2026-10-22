@@ -106,7 +106,9 @@ jobs:
                   "No bandit findings in el_hidratador/."
                 else
                   (.results[] |
-                    "- " + .issue_severity + "/" + .issue_confidence + " " + .test_id + ": " + .issue_text + " (" + .filename + ":" + (.line_number | tostring) + ")")
+                    "- " + .issue_severity + "/" + .issue_confidence + " " + .test_id
+                    + ": " + .issue_text + " (" + .filename + ":"
+                    + (.line_number | tostring) + ")")
                 end
               ' dist/bandit.json || echo "The bandit report could not be parsed."
             else
@@ -122,7 +124,9 @@ jobs:
           set -uo pipefail
           status=0
           if [ -f dist/pip-audit.json ]; then
-            vulnerabilities="$(jq '[.dependencies[]? | select((.vulns | length) > 0)] | length' dist/pip-audit.json || echo "")"
+            vulnerabilities="$(jq \
+              '[.dependencies[]? | select((.vulns | length) > 0)] | length' \
+              dist/pip-audit.json || echo "")"
             if [ -n "${vulnerabilities}" ] && [ "${vulnerabilities}" -gt 0 ]; then
               echo "pip-audit reported ${vulnerabilities} vulnerable dependencies." >&2
               status=1
@@ -136,7 +140,10 @@ jobs:
               *) min_rank=1 ;;
             esac
             findings="$(jq --argjson min "${min_rank}" '
-              [.results[]? | .issue_severity | ascii_downcase | {"low": 1, "medium": 2, "high": 3}[.] // 0 | select(. >= $min)] | length
+              [.results[]?
+                | .issue_severity | ascii_downcase
+                | {"low": 1, "medium": 2, "high": 3}[.] // 0
+                | select(. >= $min)] | length
             ' dist/bandit.json || echo "")"
             if [ -n "${findings}" ] && [ "${findings}" -gt 0 ]; then
               echo "bandit reported ${findings} findings at or above severity ${BANDIT_SEVERITY_LEVEL}." >&2

@@ -46,4 +46,5 @@ git -c user.name="Michael Hamanaka" \
     -c user.email="41898235+hamanakam1@users.noreply.github.com" \
     commit --quiet -m "docs: publish the wiki pages from docs/wiki"
 git push --quiet origin HEAD:main
-echo "published $(ls -1 "${SOURCE_DIR}"/*.md | wc -l | tr -d ' ') wiki pages to ${WIKI_URL}"
+count="$(find "${SOURCE_DIR}" -maxdepth 1 -name '*.md' | wc -l | tr -d ' ')"
+echo "published ${count} wiki pages to ${WIKI_URL}"

@@ -1,0 +1,65 @@
+name: Lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lint-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: lint the repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Lint the workflows with actionlint
+        # The binary is downloaded from the upstream release and verified
+        # against the checksum published with it.
+        run: |
+          set -euo pipefail
+          version="1.7.7"
+          expected="023070a287cd8cccd71515fedc843f1985bf96c436b7effaecce67290e7e0757"
+          curl -sSL --proto '=https' --tlsv1.2 \
+            "https://github.com/rhysd/actionlint/releases/download/v${version}/actionlint_${version}_linux_amd64.tar.gz" \
+            -o actionlint.tar.gz
+          echo "${expected}  actionlint.tar.gz" | sha256sum --check --strict
+          tar -xzf actionlint.tar.gz actionlint
+          ./actionlint -color .github/workflows/*.yml
+
+      - name: Lint the Markdown
+        # The rules live in .markdownlint.yaml. The version is pinned so a new
+        # release cannot break the build without a review.
+        run: npx --yes markdownlint-cli2@0.18.1 "**/*.md" "#node_modules"
+
+      - name: Lint the YAML
+        # The rules live in .yamllint.yaml.
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install yamllint==1.38.0
+          yamllint --strict -c .yamllint.yaml .
+
+      - name: Lint the shell scripts
+        run: shellcheck --severity=style scripts/*.sh
+
+      - name: Check the documentation builds
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install ".[docs]"
+          mkdocs build --strict --site-dir site

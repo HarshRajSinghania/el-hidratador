@@ -229,7 +229,7 @@ with Ledger("/tmp/ledger.sqlite") as ledger:
 ```
 
 ```bash
-$ hidratador start M-3001 --owner terminal-1 --lease 900
+hidratador start M-3001 --owner terminal-1 --lease 900
 ```
 
 The alternative recovery is to split the work: create smaller tickets with their own budgets and
@@ -345,7 +345,7 @@ summary. Repeatedly reporting the same cause with the same wording is what makes
 visible:
 
 ```bash
-$ hidratador --compact status | jq '.failures[] | {category, fingerprint, occurrences, summary}'
+hidratador --compact status | jq '.failures[] | {category, fingerprint, occurrences, summary}'
 ```
 
 ---

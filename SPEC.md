@@ -7,7 +7,8 @@
 ---
 
 ## System Role
-**The Context Expansion and Execution Staging Engine**
+
+### The Context Expansion and Execution Staging Engine
 
 **Pipeline Position:** Upstream from Taskrivet; Downstream from the Ticket Board.
 
@@ -15,7 +16,9 @@
 
 ## Objective
 
-El Hidratador transforms a "dry" semantic work package from the Ticket Board into a fully "hydrated" execution state. It bridges the gap between human-approved intent and deterministic machine action by:
+El Hidratador transforms a "dry" semantic work package from the Ticket Board into a fully
+"hydrated" execution state. It bridges the gap between human-approved intent and deterministic
+machine action by:
 
 1. Retrieving required codebase history
 2. Expanding the context window for local LLM inference
@@ -27,11 +30,14 @@ El Hidratador transforms a "dry" semantic work package from the Ticket Board int
 
 ### 1. Context Injection & Token Expansion
 
-A standard ticket lacks the explicit state needed for autonomous execution. El Hidratador enriches it by:
+A standard ticket lacks the explicit state needed for autonomous execution. El Hidratador
+enriches it by:
 
 - **Cloning the target Git branch** and establishing the working directory
-- **Querying the local EdgeRecord ledger** to append immutable historical context, past decisions, and relevant post-mortems
-- **Expanding a lightweight 50-word semantic ticket** into a densely packed, multi-thousand-token prompt specifically formatted for Qwen
+- **Querying the local EdgeRecord ledger** to append immutable historical context, past
+  decisions, and relevant post-mortems
+- **Expanding a lightweight 50-word semantic ticket** into a densely packed,
+  multi-thousand-token prompt specifically formatted for Qwen
 
 ### 2. The Execution DAG (Directed Acyclic Graph)
 
@@ -48,8 +54,10 @@ Before handing anything to the execution layer, the system computes the exact se
 Taskrivet lands in a fully prepped, isolated sandbox. El Hidratador manages this physical staging:
 
 - **Spins up Docker containers** based on project requirements
-- **Mounts appropriate local volumes** including code repositories and immutable logging directories
-- **Locks environment boundaries** so Taskrivet cannot modify files outside the immediate scope of the active DAG node
+- **Mounts appropriate local volumes** including code repositories and immutable logging
+  directories
+- **Locks environment boundaries** so Taskrivet cannot modify files outside the immediate scope
+  of the active DAG node
 
 ---
 
@@ -66,7 +74,8 @@ Given the local-first architecture, compute resources must be allocated efficien
 
 ## Handoff to Taskrivet
 
-Once the environment is fully provisioned and the DAG is mapped, El Hidratador passes the baton. The payload sent to Taskrivet consists of:
+Once the environment is fully provisioned and the DAG is mapped, El Hidratador passes the
+baton. The payload sent to Taskrivet consists of:
 
 | Component | Description |
 |-----------|-------------|
@@ -143,13 +152,14 @@ Implement proper JWT-based authentication for API endpoints with token issuance,
 - [ ] POST /api/auth/introspect returns RFC 7662 response
 - [ ] All endpoints return proper RFC 7807 error responses
 - [ ] 100% unit test coverage on auth module
+
 ```
 
 ---
 
 ## Ticket Lifecycle Stations
 
-```
+```text
 INBOX → READY → IN_PROGRESS ↔ BLOCKED → REVIEW → ACCEPTED → DONE
                     ↑           ↓
                     └───────────┘ (retry)
@@ -239,7 +249,7 @@ fingerprint: sha256(category:summary)[:16]  # stable grouping
 
 ## Acceptance Protocol
 
-```
+```text
 finish() → status=review
     ↓
 operator reviews evidence
@@ -249,7 +259,8 @@ decide(retry)  → status=ready    → IN_PROGRESS (new session)
 decide(cancel) → status=cancelled
 ```
 
-**Never** bypass the acceptance gate. `finish()` only creates `review`; only `decide(accept)` creates `done`.
+**Never** bypass the acceptance gate. `finish()` only creates `review`; only
+`decide(accept)` creates `done`.
 
 ---
 
@@ -298,16 +309,21 @@ hidratador dashboard-preview --url http://127.0.0.1:8080 --status planned --offs
 ## GitHub Sync Contract
 
 ### Observations (Read-Only)
+
 ```sql
 observations(repo, kind, identity, revision, observed, summary, action, url)
 ```
+
 - `kind`: `issues`, `comments`, `pulls`, `review_comments`, `releases`, `runs`, `commits`, `events`
-- `action`: `investigate_failed_check`, `review_code_change`, `reconcile_ticket_change`, `review_external_feedback`, `verify_release_artifacts`, `inspect_repository_activity`
+- `action`: `investigate_failed_check`, `review_code_change`, `reconcile_ticket_change`,
+  `review_external_feedback`, `verify_release_artifacts`, `inspect_repository_activity`
 
 ### Outbox (Write Path)
+
 ```sql
 outbox(repo, issue, key, body_hash, state, url)
 ```
+
 - `key`: Idempotency key (max 100 chars)
 - `body_hash`: SHA-256 of body
 - `marker`: `<!-- hidratador:{key}:{digest} -->` appended to body
@@ -317,7 +333,7 @@ outbox(repo, issue, key, body_hash, state, url)
 
 ## Ticket File Storage
 
-```
+```text
 .hidratador/
 ├── tickets/
 │   ├── M-397001.md
@@ -365,6 +381,7 @@ network access and no Docker daemon present.
 ## File Templates
 
 ### New Ticket Template
+
 ```markdown
 ---
 id: "M-XXXXXX"
@@ -385,7 +402,6 @@ updated_at: "2026-10-21T00:00:00Z"
 
 ## Description
 
-
 ## Tasks
 - [ ] 
 
@@ -394,12 +410,13 @@ updated_at: "2026-10-21T00:00:00Z"
 
 ## Files Created
 
-
 ## Acceptance Criteria
 - [ ] 
+
 ```
 
 ### Checkpoint Evidence File
+
 ```json
 {
   "session_id": "abc123",

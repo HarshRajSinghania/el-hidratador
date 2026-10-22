@@ -1,0 +1,22 @@
+---
+# yamllint configuration for this repository.
+extends: default
+
+rules:
+  # The workflows and the documentation site use long lines on purpose.
+  line-length:
+    max: 120
+    level: warning
+  # Document start is not required in every YAML file.
+  document-start: disable
+  # Truthy values are not used as booleans anywhere in the configuration.
+  truthy:
+    check-keys: false
+  comments:
+    min-spaces-from-content: 1
+  braces:
+    min-spaces-inside: 0
+    max-spaces-inside: 1
+  octal-values:
+    forbid-implicit-octal: true
+    forbid-explicit-octal: true

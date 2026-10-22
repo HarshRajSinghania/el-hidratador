@@ -245,6 +245,7 @@ same key but a different digest is not a match for this entry.
      - post:  gh issue comment <issue> --repo R --body <body+marker>
      - set state = 'published' and store the comment URL
      - report action = 'published'
+
 ```
 
 Two details matter:

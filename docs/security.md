@@ -4,10 +4,10 @@ El Hidratador is a local-first tool. Its security model is mostly about what it 
 there is no network path in the core, no shell execution in the core, no telemetry anywhere, and no
 credential handling anywhere.
 
-The repository root also carries a [SECURITY.md](https://github.com/hamanakam1/el-hidratador/blob/main/SECURITY.md) with the supported versions and the
-reporting address. This page explains the boundaries and the reasoning.
-
----
+The repository root also carries a
+[SECURITY.md](https://github.com/hamanakam1/el-hidratador/blob/main/SECURITY.md) with the
+supported versions and the reporting address. This page explains the boundaries and the
+reasoning.
 
 ## Security boundaries
 
@@ -97,6 +97,7 @@ explicit to a reader:
 2. Record a checkpoint with summary, evidence, next step, and cumulative tokens.
 3. Report failures with a category; never hide a failed step.
 4. Stop and ask when a decision needs an operator.
+
 ```
 
 The banner is a label, not an enforcement mechanism. It tells a reader — human or model — where
@@ -207,7 +208,8 @@ other.
 
 ## Reporting a vulnerability
 
-Report through the channel described in the repository's [SECURITY.md](https://github.com/hamanakam1/el-hidratador/blob/main/SECURITY.md). Include:
+Report through the channel described in the repository's
+[SECURITY.md](https://github.com/hamanakam1/el-hidratador/blob/main/SECURITY.md). Include:
 
 - the affected component (core, GitHub adapter, Docker adapter, dashboard adapter, or ticket store),
 - reproduction steps,

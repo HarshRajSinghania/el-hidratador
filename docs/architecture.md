@@ -22,6 +22,7 @@ are where the safety properties live.
         v
 5. Acceptance       operator review                 DONE
                      (finish() -> REVIEW -> decide(accept) -> DONE)
+
 ```
 
 **Layer 1 — Ticket Board.** A ticket is semantic: what to build, how it is judged complete, which

@@ -524,6 +524,7 @@ Expose GET /healthz that returns the request id assigned by the edge proxy.
 
 ## Acceptance Criteria
 - [ ] GET /healthz returns 200 with the X-Request-Id header
+
 ```
 
 ```bash

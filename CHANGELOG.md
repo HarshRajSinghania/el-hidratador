@@ -83,7 +83,7 @@ between the Ticket Board and Taskrivet, and nothing else.
 - Twenty-three JSON-first commands
 - Exit codes: `0` success, `2` refused operation, `3` adapter failure
 
-**Documentation and repository**
+### Documentation and repository
 
 - Full documentation set under `docs/`, a runnable walkthrough under
   `examples/`, and a pinned MkDocs configuration

@@ -168,6 +168,7 @@ Every rendered prompt ends with the same four rules:
 2. Record a checkpoint with summary, evidence, next step, and cumulative tokens.
 3. Report failures with a category; never hide a failed step.
 4. Stop and ask when a decision needs an operator.
+
 ```
 
 ---
@@ -184,6 +185,7 @@ There is one enforced limit: **bytes**. Both budget implementations follow the s
    b. Add the attachment, then measure again.
    c. If it no longer fits, remove it and record it as omitted with reason "byte_budget".
 4. Report the final size and the complete omission list.
+
 ```
 
 Two things differ between the two implementations:

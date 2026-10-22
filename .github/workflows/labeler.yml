@@ -57,7 +57,9 @@ jobs:
             size="size/L"
           fi
           for candidate in "size%2FS" "size%2FM" "size%2FL"; do
-            gh api --method DELETE "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/labels/${candidate}" >/dev/null 2>&1 || true
+            gh api --method DELETE \
+              "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/labels/${candidate}" \
+              >/dev/null 2>&1 || true
           done
           gh api --method POST "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/labels" -f "labels[]=${size}"
           echo "Applied ${size}: ${changed_lines} changed lines."
