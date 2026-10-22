@@ -163,7 +163,9 @@ Refusals along the way:
    from a `## Tests` section, falling back to the `Files Created` entries whose path contains
    `test`.
 3. **Add a prerequisites root.** If the ticket has ticket-level dependencies, a node with id
-   `{task_id}:prerequisites` is created and every task-level node depends on it.
+   `{task_id}:prerequisites` and `source: "ticket-dependencies"` is created, carrying those
+   dependency ids. It sorts first in the topological order, and every task-level node depends on
+   it, so a ticket with unmet prerequisites has no ready task work.
 4. **Attach artifacts.** A file or test is attached to a node when its path appears (case
    insensitively) in that node's title. Anything left over is attached to the last node.
 5. **Topologically order.** Kahn's algorithm with deterministic tie-breaking — the ready set is

@@ -63,6 +63,18 @@ jobs:
           .dry-run-venv/bin/python -m pip install dist/*.whl
           .dry-run-venv/bin/hidratador --help
 
+      - name: Check that a PyPI credential is configured
+        id: credential
+        env:
+          PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -n "${PYPI_API_TOKEN}" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Publish to PyPI
         # `inputs.dry_run` is only defined for workflow_dispatch. On a tag
         # push it is empty, so the publish step runs; on a manual run it
@@ -72,7 +84,7 @@ jobs:
         # secret the build still happens and the run still reports a validated
         # distribution, so a tag push is never a hard failure for a repository
         # that has not been registered on PyPI yet.
-        if: ${{ !inputs.dry_run && secrets.PYPI_API_TOKEN != '' }}
+        if: ${{ !inputs.dry_run && steps.credential.outputs.configured == 'true' }}
         uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
         with:
           user: __token__

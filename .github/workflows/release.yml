@@ -80,7 +80,7 @@ jobs:
       - name: Generate SHA256SUMS
         run: |
           set -euo pipefail
-          (cd dist && sha256sum *.whl *.tar.gz > SHA256SUMS)
+          (cd dist && sha256sum -- *.whl *.tar.gz > SHA256SUMS)
           cat dist/SHA256SUMS
 
       - name: Create the GitHub release

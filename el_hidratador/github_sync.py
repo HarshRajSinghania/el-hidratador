@@ -10,6 +10,10 @@ Two halves, kept strictly apart:
 
 The adapter shells out to the `gh` CLI. No token is ever read, stored, or
 passed through this module — `gh` owns authentication.
+
+The `gh` CLI is the declared boundary of this adapter: the argv is fixed, the
+executable is resolved with `shutil.which`, no shell is involved, and every
+invocation has a timeout.
 """
 
 from __future__ import annotations
@@ -20,7 +24,7 @@ import json
 import os
 import shutil
 import sqlite3
-import subprocess
+import subprocess  # nosec B404
 import time
 from collections.abc import Sequence
 from pathlib import Path
@@ -142,7 +146,7 @@ class GitHubSync:
         if shutil.which("gh") is None:
             raise AdapterError("gh executable not found on PATH")
         try:
-            completed = subprocess.run(  # noqa: S603 - fixed argv, no shell
+            completed = subprocess.run(  # nosec B603 B607
                 ["gh", *args],
                 capture_output=True,
                 text=True,
@@ -213,9 +217,12 @@ class GitHubSync:
         if kind:
             clauses.append("kind=?")
             params.append(kind)
+        # The clause list is built from fixed fragments and every value is
+        # bound as a parameter, so no caller input reaches the statement text.
         where = f" WHERE {' AND '.join(clauses)}" if clauses else ""
         rows = self.db.execute(
-            f"SELECT * FROM observations{where} ORDER BY repo, kind, identity", params
+            f"SELECT * FROM observations{where} ORDER BY repo, kind, identity",  # nosec B608
+            params,
         ).fetchall()
         return [dict(row) for row in rows]
 

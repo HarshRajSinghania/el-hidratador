@@ -29,7 +29,7 @@ body:
       placeholder: |
         1. `pip install -e .`
         2. `hidratador init --db /tmp/ledger.sqlite`
-        3. `hidratador task-add M-1 --objective "x" --acceptance "y"`
+        3. `hidratador task-add M-1001 --objective "x" --acceptance "y"`
         4. `hidratador status --db /tmp/ledger.sqlite`
     validations:
       required: true

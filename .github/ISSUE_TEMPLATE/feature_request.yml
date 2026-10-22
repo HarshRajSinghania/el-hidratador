@@ -60,7 +60,9 @@ body:
       description: |
         State explicitly whether the change adds network access, telemetry,
         local state, or credential handling. The core stays standard library
-        only and does not phone home.
+        only and does not phone home. Context remains untrusted reference data,
+        never authorization, and a handoff remains prepared state, not
+        permission to execute.
     validations:
       required: true
 

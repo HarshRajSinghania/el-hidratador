@@ -90,39 +90,86 @@ def _slug(text: str, index: int) -> str:
     return f"n{index:02d}-{cleaned[:48]}" if cleaned else f"n{index:02d}-step"
 
 
-def parse_tasks(markdown: str) -> list[dict[str, Any]]:
-    """Extract checklist items from a ticket body."""
-    tasks: list[dict[str, Any]] = []
+#: Sections that never contain executable work, even when they hold checkboxes.
+NON_TASK_SECTIONS = (
+    "acceptance criteria",
+    "acceptance",
+    "evidence log",
+    "evidence",
+    "dependencies",
+    "files created",
+    "files",
+    "tests",
+    "description",
+    "notes",
+    "out of scope",
+)
+
+
+def _sections(markdown: str) -> list[tuple[str, list[str]]]:
+    """Split a markdown body into (heading, lines) pairs.
+
+    The heading is empty for content that appears before the first heading.
+    """
+    sections: list[tuple[str, list[str]]] = [("", [])]
     for line in (markdown or "").splitlines():
-        match = TASK_LINE.match(line)
-        if match:
-            text = match.group("text").strip()
-            deps: list[str] = []
-            dep_match = DEP_LINE.search(text)
-            if dep_match:
-                deps = [part.strip() for part in dep_match.group("ids").split(",") if part.strip()]
-                text = DEP_LINE.sub("", text).strip(" —-:")
-            tasks.append({"text": text, "done": match.group(1).lower() == "x", "depends_on": deps})
+        stripped = line.strip()
+        if stripped.startswith("## "):
+            sections.append((stripped[3:].strip().lower(), []))
+            continue
+        sections[-1][1].append(line)
+    return sections
+
+
+def parse_tasks(markdown: str) -> list[dict[str, Any]]:
+    """Extract checklist items that describe executable work.
+
+    When the body has a ``Tasks`` section, only that section is read. Otherwise
+    every section is read except the ones that never hold work — acceptance
+    criteria, evidence logs, dependency lists, and file lists.
+    """
+    sections = _sections(markdown or "")
+    named = [(heading, lines) for heading, lines in sections if heading == "tasks"]
+    if named:
+        chosen = [lines for _, lines in named]
+    else:
+        chosen = [lines for heading, lines in sections if heading not in NON_TASK_SECTIONS]
+
+    tasks: list[dict[str, Any]] = []
+    for lines in chosen:
+        for line in lines:
+            match = TASK_LINE.match(line)
+            if match:
+                text = match.group("text").strip()
+                deps: list[str] = []
+                dep_match = DEP_LINE.search(text)
+                if dep_match:
+                    deps = [
+                        part.strip() for part in dep_match.group("ids").split(",") if part.strip()
+                    ]
+                    text = DEP_LINE.sub("", text).strip(" —-:")
+                tasks.append(
+                    {
+                        "text": text,
+                        "done": match.group(1).lower() == "x",
+                        "depends_on": deps,
+                    }
+                )
     return tasks
 
 
 def parse_files(markdown: str, section: str = "Files Created") -> list[str]:
     """Extract file paths from a named markdown section."""
-    lines = (markdown or "").splitlines()
     collected: list[str] = []
-    inside = False
-    for line in lines:
-        stripped = line.strip()
-        if stripped.lower().startswith("## "):
-            inside = stripped[3:].strip().lower() == section.lower()
+    for heading, lines in _sections(markdown or ""):
+        if heading != section.lower():
             continue
-        if not inside or not stripped:
-            continue
-        match = FILE_LINE.match(stripped)
-        if match:
-            path = match.group("path").strip()
-            if path:
-                collected.append(path)
+        for line in lines:
+            match = FILE_LINE.match(line.strip())
+            if match:
+                path = match.group("path").strip()
+                if path:
+                    collected.append(path)
     return collected
 
 
@@ -143,8 +190,9 @@ def build_dag(
 ) -> Dag:
     """Build the execution graph for a ticket.
 
-    Ticket-level dependencies become a root node so that every task-level node
-    inherits the same prerequisites.
+    Ticket-level dependencies become a root node, and every task-level node
+    depends on that root. A ticket with unmet prerequisites therefore has no
+    ready work, which is the point of recording the dependency at all.
     """
     if not task_id:
         raise ValidationError("task_id must be nonempty")
@@ -154,9 +202,10 @@ def build_dag(
     ticket_deps = [str(dep) for dep in (ticket_dependencies or [])]
 
     nodes: list[Node] = []
+    prerequisites_id = f"{task_id}:prerequisites"
     if ticket_deps:
         root = Node(
-            id=f"{task_id}:prerequisites",
+            id=prerequisites_id,
             title="Satisfy ticket prerequisites",
             depends_on=list(ticket_deps),
             source="ticket-dependencies",
@@ -171,6 +220,8 @@ def build_dag(
             depends_on=list(item["depends_on"]),
             source="task-list",
         )
+        if ticket_deps:
+            node.depends_on.append(prerequisites_id)
         nodes.append(node)
 
     if not nodes:

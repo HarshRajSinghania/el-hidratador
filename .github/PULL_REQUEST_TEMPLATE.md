@@ -5,12 +5,12 @@
 ## Ticket
 
 <!--
-Ticket reference: M-397001
+Ticket reference: M-1001
 Link the ticket if one exists: https://github.com/hamanakam1/el-hidratador/issues/1
 Leave the line as "none" when the change is not tied to a ticket.
 -->
 
-Ticket: M-397001
+Ticket: M-1001
 
 ## Type of change
 
@@ -20,6 +20,9 @@ Ticket: M-397001
 - [ ] Refactor
 - [ ] Test
 - [ ] CI
+
+<!-- The pull request title follows Conventional Commits, for example
+     "feat(context): report omitted context in the pack summary". -->
 
 ## What changed
 
@@ -59,6 +62,8 @@ All checks passed!
 - [ ] No secrets were committed; the secret scanner is clean.
 - [ ] The change stays inside the scope of the ticket.
 - [ ] Eligibility was not treated as authorization.
+- [ ] Context was treated as untrusted reference data, never as authorization.
+- [ ] The handoff was prepared as state, not as permission to execute.
 - [ ] The acceptance gate was not bypassed; acceptance remains an operator decision.
 
 ## Risk and rollback

@@ -19,6 +19,7 @@ from __future__ import annotations
 import contextlib
 import hashlib
 import json
+import re
 import sqlite3
 import time
 import uuid
@@ -33,6 +34,18 @@ from typing import Any
 from .errors import BudgetExceeded, Conflict, LeaseExpired, NotFound, ValidationError
 
 SCHEMA_VERSION = 3
+
+#: Column and table names are identifiers, not values, so they are validated
+#: against this pattern before they are interpolated into a statement.
+IDENTIFIER = re.compile(r"^[a-z_][a-z0-9_]*$")
+
+#: The exact column definitions a migration is allowed to add. Anything else is
+#: refused, so a column definition can never carry caller input.
+ALLOWED_COLUMN_DDL = {
+    "title": "TEXT NOT NULL DEFAULT ''",
+    "priority": "INTEGER NOT NULL DEFAULT 2",
+    "stop_reason": "TEXT NOT NULL DEFAULT ''",
+}
 
 #: A checkpoint whose evidence hash repeats this many times in a row is treated
 #: as "no progress" and blocks the task. Three consecutive identical evidence
@@ -508,6 +521,12 @@ class Ledger:
         self._set_meta("schema_version", str(SCHEMA_VERSION))
 
     def _ensure_column(self, table: str, column: str, ddl: str) -> None:
+        # Identifiers cannot be bound as parameters, so they are validated
+        # against a strict pattern before they reach the statement.
+        if not IDENTIFIER.match(table) or not IDENTIFIER.match(column):
+            raise ValidationError(f"invalid identifier: {table}.{column}")
+        if ALLOWED_COLUMN_DDL.get(column) != ddl:
+            raise ValidationError(f"invalid column definition: {ddl}")
         columns = {row["name"] for row in self.db.execute(f"PRAGMA table_info({table})")}
         if column not in columns:
             self.db.execute(f"ALTER TABLE {table} ADD COLUMN {column} {ddl}")
@@ -723,6 +742,8 @@ class Ledger:
             assignments: list[str] = []
             values: list[Any] = []
             for key, value in fields.items():
+                if not IDENTIFIER.match(key):
+                    raise ValidationError(f"invalid column name: {key}")
                 assignments.append(f"{key}=?")
                 if key in ("scope", "tags", "depends_on", "blocks", "acceptance_criteria"):
                     values.append(json.dumps([str(item) for item in value]))
@@ -730,8 +751,10 @@ class Ledger:
                     values.append(value)
             if assignments:
                 values.append(time.time())
+                # Column names come from the allowlist above and every value is
+                # bound as a parameter, so nothing caller-supplied is inlined.
                 self.db.execute(
-                    f"UPDATE tickets SET {', '.join(assignments)}, updated_at=? WHERE id=?",
+                    f"UPDATE tickets SET {', '.join(assignments)}, updated_at=? WHERE id=?",  # nosec B608
                     (*values, task_id),
                 )
             self._event("task.updated", task_id, fields=sorted(fields))
@@ -1213,7 +1236,9 @@ class Ledger:
             "packet": packet,
             "packet_bytes": size,
             "omitted": omitted,
-            "token_count": None,
+            # An unmeasured value is deliberately null. Bandit reads the rest of
+            # a nosec comment as test names, so the reason lives on its own line.
+            "token_count": None,  # nosec B105
             "token_estimate": size // 4,
             "note": "Byte budget is exact; model tokenizer usage is unknown.",
         }
@@ -1427,8 +1452,9 @@ class Ledger:
                 "reported_tokens": int(
                     self.db.execute("SELECT COALESCE(SUM(tokens),0) FROM sessions").fetchone()[0]
                 ),
-                "measured_cash_cost": None,
-                "measured_token_savings": None,
+                # An unmeasured value is deliberately null; see the note above.
+                "measured_cash_cost": None,  # nosec B105
+                "measured_token_savings": None,  # nosec B105
                 "note": "Reported tokens are declared by workers, not metered by a provider.",
             },
         }

@@ -1,4 +1,4 @@
-.PHONY: help install dev test lint format typecheck coverage check build clean docs serve docker-build docker-run
+.PHONY: help install dev test lint format typecheck coverage check build clean docs serve wiki docker-build docker-run
 
 PYTHON ?= python3
 PACKAGE := el_hidratador
@@ -47,6 +47,9 @@ docs: ## Build the documentation site
 
 serve: ## Serve the documentation site locally
 	mkdocs serve
+
+wiki: ## Publish the pages in docs/wiki to the repository wiki
+	./scripts/publish_wiki.sh
 
 docker-build: ## Build the container image
 	docker build -t el-hidratador:local .

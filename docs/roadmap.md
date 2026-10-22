@@ -53,14 +53,11 @@ operator can do everything the library can do without writing Python.
 - The local topology report becomes a command. **Observable:** `hidratador topology` prints the
   platform, machine, and Python version the package sees.
 
-### Make the DAG parser less surprising
+### Make the DAG parser configurable
 
-The current parser treats every checkbox in the body as a task, including the ones under
-`## Acceptance Criteria`. That is a real source of confusing manifests.
+Task lines are already read from the `## Tasks` section when the body has one, and acceptance
+criteria are never mistaken for work. What is left:
 
-- Task lines are collected from named sections rather than from the whole body. **Observable:** a
-  ticket whose acceptance criteria are checkboxes produces a manifest whose node count equals the
-  number of lines under `## Tasks`.
 - The dependency keyword list is narrowed, or a task that mentions `after` without ids is left
   alone. **Observable:** a task titled *"Wait after the cache warms"* keeps its title and has an
   empty `depends_on`.

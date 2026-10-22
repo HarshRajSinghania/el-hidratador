@@ -3,8 +3,8 @@
 # `root = false` keeps the search for a parent .editorconfig file running, so
 # the repository root file stays authoritative for the rest of the tree.
 #
-# The repository root needs its own .editorconfig file with the same settings
-# for the package sources, the tests and the documentation.
+# The repository root carries the same settings for the package sources, the
+# tests and the documentation.
 
 root = false
 

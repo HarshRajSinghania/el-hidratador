@@ -8,6 +8,10 @@ copyright: "MIT licensed. Author: Michael Hamanaka."
 
 docs_dir: docs
 site_dir: site
+# The wiki pages live in the repository and are published to the GitHub wiki
+# with scripts/publish_wiki.sh. They are not part of the documentation site.
+exclude_docs: |
+  wiki/
 
 theme:
   name: material

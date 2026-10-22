@@ -8,9 +8,14 @@ categories:
     labels:
       - "feat"
       - "feature"
+      - "enhancement"
       - "area/cli"
       - "area/context"
       - "area/dag"
+      - "area/sandbox"
+      - "area/github"
+      - "area/hardware"
+      - "area/dashboard"
     collapse-after: 3
 
   - title: "Fixes"
@@ -35,6 +40,8 @@ categories:
   - title: "Automation"
     labels:
       - "ci"
+      - "build"
+      - "chore"
       - "area/ci"
       - "dependencies"
     collapse-after: 3
@@ -55,6 +62,8 @@ no-contributors: true
 no-changes-template: "No user facing changes in this release."
 
 autolabeler:
+  - label: "area/ledger"
+    branch: "/^feat(\\(.*\\))?(\\/ledger)?$/"
   - label: "area/cli"
     branch: "/^feat(\\(.*\\))?(\\/cli)?$/"
   - label: "area/context"
@@ -65,8 +74,6 @@ autolabeler:
     branch: "/^feat(\\(.*\\))?(\\/sandbox)?$/"
   - label: "area/github"
     branch: "/^feat(\\(.*\\))?(\\/github)?$/"
-  - label: "area/ledger"
-    branch: "/^feat(\\(.*\\))?(\\/ledger)?$/"
   - label: "area/docs"
     branch: "/^docs(\\(.*\\))?$/"
   - label: "area/tests"

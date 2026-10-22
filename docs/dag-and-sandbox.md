@@ -64,9 +64,10 @@ The dependency clause is removed from the title, so the node title is the work, 
 
 Two parsing caveats worth knowing:
 
-- `parse_tasks` scans **every** line of the body. Checkboxes under `## Acceptance Criteria` are
-  parsed as tasks too. Put acceptance criteria in the `acceptance_criteria` field (or accept that
-  they appear as nodes) — this is the current behaviour, not an accident of the format.
+- `parse_tasks` reads the `## Tasks` section when the body has one. When it does not, it reads
+  every section except the ones that never hold work — `## Acceptance Criteria`, `## Evidence Log`,
+  `## Dependencies`, `## Files Created`, `## Tests`, `## Description`, and `## Notes`. Acceptance
+  criteria are therefore never mistaken for executable work.
 - The word `after` triggers dependency parsing. A task like *"Wait after the cache warms"* will try to
   parse `the` as a dependency id. Keep dependency keywords unambiguous in task text.
 
@@ -141,8 +142,10 @@ If the title contains nothing sluggable, the id ends in `-step` instead.
 1. **Parse** the task list, files, and tests.
 2. **Add a prerequisites root** when the ticket itself has `depends_on` entries. The root node is
    `{task_id}:prerequisites`, titled "Satisfy ticket prerequisites", with `source:
-   "ticket-dependencies"`. Every task-level node depends on it, so all task-level work waits for
-   the ticket's prerequisites.
+   "ticket-dependencies"` and `depends_on` set to the ticket-level dependency ids. It is a node in
+   the graph like any other. Its own dependencies are external ids that do not constrain ordering
+   here, so it sorts first — and every task-level node depends on it, so no task work is ready
+   while the prerequisites are unmet.
 3. **Attach artifacts.** A file or test path is attached to a node when the path appears
    case-insensitively inside that node's title. Whatever is left unattached is appended to the
    **last** node in the list.

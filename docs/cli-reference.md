@@ -34,8 +34,9 @@ hidratador --compact --db /tmp/demo.sqlite status
 ```
 
 The `--db` flag is accepted by every command, but `github-poll`, `github-publish`, and
-`dashboard-preview` do not read from the ledger: they use their own stores (the GitHub sync
-database, and the local dashboard respectively).
+`dashboard-preview` read no ledger data: they use their own stores (the GitHub sync database, and
+the local dashboard respectively). The ledger file at the `--db` path is still opened — and created
+if it does not exist.
 
 ---
 

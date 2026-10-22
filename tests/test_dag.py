@@ -56,6 +56,22 @@ class ParseTests(unittest.TestCase):
     def test_no_tasks_yields_no_nodes(self) -> None:
         self.assertEqual(parse_tasks(""), [])
 
+    def test_acceptance_criteria_are_not_tasks(self) -> None:
+        body = (
+            "## Tasks\n"
+            "- [ ] Implement the endpoint\n"
+            "## Acceptance Criteria\n"
+            "- [ ] Returns 200\n"
+            "- [ ] Has a unit test\n"
+        )
+        tasks = parse_tasks(body)
+        self.assertEqual(len(tasks), 1)
+        self.assertEqual(tasks[0]["text"], "Implement the endpoint")
+
+    def test_checkboxes_outside_a_tasks_section_are_ignored_when_scoped(self) -> None:
+        body = "## Evidence Log\n- [x] checkpoint recorded\n"
+        self.assertEqual(parse_tasks(body), [])
+
 
 class DagTests(unittest.TestCase):
     def test_dag_orders_nodes_deterministically(self) -> None:
@@ -78,6 +94,20 @@ class DagTests(unittest.TestCase):
         dag = build_dag("M-1001", markdown=SAMPLE, ticket_dependencies=["M-0999"])
         self.assertEqual(dag.nodes[0].id, "M-1001:prerequisites")
         self.assertIn("M-0999", dag.nodes[0].depends_on)
+
+    def test_task_nodes_depend_on_the_prerequisites_root(self) -> None:
+        dag = build_dag("M-1001", markdown=SAMPLE, ticket_dependencies=["M-0999"])
+        for node in dag.nodes[1:]:
+            self.assertIn("M-1001:prerequisites", node.depends_on)
+
+    def test_no_task_work_is_ready_while_prerequisites_are_unmet(self) -> None:
+        dag = build_dag("M-1001", markdown=SAMPLE, ticket_dependencies=["M-0999"])
+        ready = [node.id for node in dag.ready_nodes()]
+        self.assertEqual(ready, ["M-1001:prerequisites"])
+
+    def test_work_is_ready_without_prerequisites(self) -> None:
+        dag = build_dag("M-1001", markdown=SAMPLE)
+        self.assertTrue(dag.ready_nodes())
 
     def test_cycle_is_refused(self) -> None:
         markdown = "- [ ] Step A depends on M-b\n- [ ] Step B depends on M-a\n"

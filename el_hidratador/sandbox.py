@@ -8,6 +8,10 @@ created.
 The optional adapter (`apply_sandbox`) shells out to the Docker CLI. It is
 never invoked implicitly, it always has a timeout, and it never inherits a
 credential environment by default.
+
+The `docker` CLI is the declared boundary of this adapter: the argv is fixed,
+the executable is resolved with `shutil.which`, no shell is involved, and every
+invocation has a timeout.
 """
 
 from __future__ import annotations
@@ -15,7 +19,7 @@ from __future__ import annotations
 import json
 import os
 import shutil
-import subprocess
+import subprocess  # nosec B404
 from pathlib import Path
 from typing import Any
 
@@ -155,7 +159,7 @@ def apply_sandbox(spec: dict[str, Any], timeout: int = 60, dry_run: bool = True)
     if shutil.which("docker") is None:
         raise AdapterError("docker executable not found on PATH")
     try:
-        completed = subprocess.run(  # noqa: S603 - fixed argv, no shell
+        completed = subprocess.run(  # nosec B603 B607
             argv,
             capture_output=True,
             text=True,
@@ -182,7 +186,7 @@ def teardown_sandbox(name: str, timeout: int = 30) -> dict[str, Any]:
     if shutil.which("docker") is None:
         raise AdapterError("docker executable not found on PATH")
     try:
-        completed = subprocess.run(  # noqa: S603 - fixed argv, no shell
+        completed = subprocess.run(  # nosec B603 B607
             ["docker", "rm", "-f", name],
             capture_output=True,
             text=True,
