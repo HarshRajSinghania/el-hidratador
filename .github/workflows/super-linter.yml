@@ -60,7 +60,9 @@ jobs:
       # Workflow and repository hygiene checks.
       VALIDATE_GITHUB_ACTIONS: true
       VALIDATE_GITLEAKS: true
-      VALIDATE_RENOVATE: true
+      # Renovate is not installed on this repository: Dependabot is the single
+      # dependency updater, so a second runner would open duplicate pull requests.
+      VALIDATE_RENOVATE: false
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

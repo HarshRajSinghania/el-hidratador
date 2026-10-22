@@ -42,9 +42,13 @@ If the change does not solve a reported problem, say that plainly.
 <!--
 Exact commands and their output. Paste the relevant lines only; do not paste
 transcripts, credentials, or private ticket data.
+`make check` runs the same four checks that CI runs, one per step.
 -->
 
 ```console
+$ make check
+...
+
 $ python3 -m unittest discover -s tests -v
 ...
 
