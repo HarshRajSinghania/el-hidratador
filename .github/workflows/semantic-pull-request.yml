@@ -19,6 +19,8 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      # The action reports its result as a commit status.
+      statuses: write
     steps:
       # The pull request head is never checked out here. The action only reads
       # the pull request title and writes a validation comment.
