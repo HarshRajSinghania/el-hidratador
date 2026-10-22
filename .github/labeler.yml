@@ -1,0 +1,85 @@
+# Label mapping used by the Labeler workflow (.github/workflows/labeler.yml).
+#
+# Area labels are matched from the changed paths. The size labels are the
+# path based approximation of the change size; the workflow recomputes the
+# size label from the diff itself and normalises it to exactly one of
+# size/S, size/M or size/L.
+
+area/ledger:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "el_hidratador/core.py"
+          - "el_hidratador/tickets.py"
+          - "el_hidratador/errors.py"
+          - "el_hidratador/__init__.py"
+
+area/cli:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "el_hidratador/cli.py"
+          - "el_hidratador/__main__.py"
+
+area/context:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "el_hidratador/context_expander.py"
+
+area/dag:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "el_hidratador/dag.py"
+
+area/sandbox:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "el_hidratador/sandbox.py"
+
+area/github:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "el_hidratador/github_sync.py"
+
+area/hardware:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "el_hidratador/hardware_router.py"
+
+area/dashboard:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "el_hidratador/dashboard.py"
+
+area/docs:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "docs/**"
+          - "*.md"
+
+area/tests:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "tests/**"
+
+area/ci:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/**"
+
+size/S:
+  - changed-files:
+      - any-glob-to-all-files:
+          - "docs/**"
+          - "**/*.md"
+
+size/M:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "el_hidratador/**"
+
+size/L:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "el_hidratador/core.py"
+          - "el_hidratador/cli.py"
+          - "el_hidratador/dag.py"
+          - "el_hidratador/sandbox.py"

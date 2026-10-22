@@ -1,0 +1,113 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "el-hidratador"
+version = "0.1.0"
+description = "Context expansion and execution staging engine: hydrates dry tickets into wet, reviewable execution state"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Michael Hamanaka" }]
+maintainers = [{ name = "Michael Hamanaka" }]
+requires-python = ">=3.11"
+keywords = [
+    "ai-factory",
+    "context-engineering",
+    "dag",
+    "local-first",
+    "multi-agent",
+    "orchestration",
+    "sandbox",
+    "task-orchestration",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development :: Build Tools",
+    "Topic :: System :: Distributed Computing",
+    "Topic :: System :: Monitoring",
+    "Typing :: Typed",
+]
+# The core is standard library only: no network, no shell execution, no telemetry.
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "coverage>=7.4",
+    "mypy>=1.8",
+    "pytest>=7.4",
+    "ruff>=0.4",
+]
+docs = [
+    "mkdocs>=1.6",
+    "mkdocs-material>=9.5",
+    "mkdocstrings[python]>=0.25",
+]
+
+[project.urls]
+Homepage = "https://github.com/hamanakam1/el-hidratador"
+Documentation = "https://hamanakam1.github.io/el-hidratador/"
+Repository = "https://github.com/hamanakam1/el-hidratador.git"
+Issues = "https://github.com/hamanakam1/el-hidratador/issues"
+Discussions = "https://github.com/hamanakam1/el-hidratador/discussions"
+Changelog = "https://github.com/hamanakam1/el-hidratador/blob/main/CHANGELOG.md"
+Funding = "https://github.com/sponsors/hamanakam1"
+
+[project.scripts]
+hidratador = "el_hidratador.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["el_hidratador*"]
+
+[tool.setuptools.package-data]
+el_hidratador = ["py.typed"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+disallow_untyped_calls = true
+no_implicit_optional = true
+
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+disallow_untyped_defs = false
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["el_hidratador", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "W", "B", "SIM", "C4"]
+ignore = ["E501", "B008", "SIM108"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E402"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-q"
+
+[tool.coverage.run]
+source = ["el_hidratador"]
+omit = ["tests/*", "*/__pycache__/*"]
+
+[tool.coverage.report]
+exclude_lines = ["pragma: no cover", "raise NotImplementedError", "if __name__ == .__main__.:"]
+show_missing = true

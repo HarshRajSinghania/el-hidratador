@@ -1,0 +1,65 @@
+name: Stale
+
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  issues:
+    types: [opened, reopened, labeled, unlabeled]
+  pull_request:
+    types: [opened, reopened, labeled, unlabeled]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: stale-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  stale:
+    name: mark stale issues and pull requests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Ensure the stale label exists
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh label create stale \
+            --repo "${GITHUB_REPOSITORY}" \
+            --description "No activity for 30 days" \
+            --color "cfd3d7" \
+            2>/dev/null || true
+
+      - name: Mark and close stale issues and pull requests
+        uses: actions/stale@4391f3da665fdf50b6810c1a66712fb9ba21aa93 # v11.0.0
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          days-before-stale: 30
+          days-before-close: 14
+          stale-issue-label: stale
+          stale-pr-label: stale
+          close-issue-reason: not_planned
+          close-pr-reason: not_planned
+          exempt-issue-labels: "security,pinned,help wanted,good first issue,roadmap,question,discussion"
+          exempt-pr-labels: "security,pinned,help wanted,good first issue,roadmap,question,discussion"
+          operations-per-run: 50
+          stale-issue-message: >
+            This issue has had no activity for 30 days. It is marked as stale and
+            will be closed as not planned in 14 days unless there is new
+            activity. Add a comment if the issue still applies.
+          stale-pr-message: >
+            This pull request has had no activity for 30 days. It is marked as
+            stale and will be closed as not planned in 14 days unless there is
+            new activity.
+          close-issue-message: >
+            Closing this issue as not planned after 14 days without activity.
+            Reopen it with a comment if the issue still applies.
+          close-pr-message: >
+            Closing this pull request as not planned after 14 days without
+            activity.

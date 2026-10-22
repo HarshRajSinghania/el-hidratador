@@ -1,0 +1,146 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "53 2 * * 3"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-scan-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Lowest bandit severity that fails the job. Raise it to medium or high if
+  # the low severity findings are accepted for this codebase.
+  BANDIT_SEVERITY_LEVEL: low
+
+jobs:
+  scan:
+    name: dependency and static security scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install the scan tooling
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install build pip-audit bandit
+
+      - name: Build the distribution
+        run: python -m build --sdist --wheel --outdir dist/
+
+      - name: Collect the resolved dependency set of the built wheel
+        run: |
+          set -euo pipefail
+          python -m venv .audit-venv
+          .audit-venv/bin/python -m pip install --upgrade pip
+          .audit-venv/bin/python -m pip install dist/*.whl
+          .audit-venv/bin/python -m pip freeze > dist/audit-requirements.txt
+          cat dist/audit-requirements.txt
+
+      - name: Audit the dependencies with pip-audit
+        continue-on-error: true
+        run: |
+          pip-audit \
+            --requirement dist/audit-requirements.txt \
+            --format json \
+            --output dist/pip-audit.json \
+            --strict
+
+      - name: Scan the package with bandit
+        continue-on-error: true
+        run: |
+          bandit \
+            --recursive el_hidratador/ \
+            --format json \
+            --output dist/bandit.json
+
+      - name: Report the findings
+        if: always()
+        run: |
+          set -uo pipefail
+          {
+            echo "## Security scan"
+            echo
+            echo "### Dependency vulnerabilities (pip-audit)"
+            echo
+            if [ -f dist/pip-audit.json ]; then
+              jq -r '
+                if ([.dependencies[]? | select((.vulns | length) > 0)] | length) == 0 then
+                  "No known vulnerabilities in the resolved dependency set."
+                else
+                  (.dependencies[] | select((.vulns | length) > 0) |
+                    "- " + .name + " " + .version + ": " + ([.vulns[] | .id] | join(", ")))
+                end
+              ' dist/pip-audit.json || echo "The pip-audit report could not be parsed."
+            else
+              echo "The pip-audit report was not produced."
+            fi
+            echo
+            echo "### Static analysis findings (bandit)"
+            echo
+            if [ -f dist/bandit.json ]; then
+              jq -r '
+                if (.results | length) == 0 then
+                  "No bandit findings in el_hidratador/."
+                else
+                  (.results[] |
+                    "- " + .issue_severity + "/" + .issue_confidence + " " + .test_id + ": " + .issue_text + " (" + .filename + ":" + (.line_number | tostring) + ")")
+                end
+              ' dist/bandit.json || echo "The bandit report could not be parsed."
+            else
+              echo "The bandit report was not produced."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fail when findings are present
+        if: always()
+        env:
+          BANDIT_SEVERITY_LEVEL: ${{ env.BANDIT_SEVERITY_LEVEL }}
+        run: |
+          set -uo pipefail
+          status=0
+          if [ -f dist/pip-audit.json ]; then
+            vulnerabilities="$(jq '[.dependencies[]? | select((.vulns | length) > 0)] | length' dist/pip-audit.json || echo "")"
+            if [ -n "${vulnerabilities}" ] && [ "${vulnerabilities}" -gt 0 ]; then
+              echo "pip-audit reported ${vulnerabilities} vulnerable dependencies." >&2
+              status=1
+            fi
+          fi
+          if [ -f dist/bandit.json ]; then
+            case "${BANDIT_SEVERITY_LEVEL}" in
+              low) min_rank=1 ;;
+              medium) min_rank=2 ;;
+              high) min_rank=3 ;;
+              *) min_rank=1 ;;
+            esac
+            findings="$(jq --argjson min "${min_rank}" '
+              [.results[]? | .issue_severity | ascii_downcase | {"low": 1, "medium": 2, "high": 3}[.] // 0 | select(. >= $min)] | length
+            ' dist/bandit.json || echo "")"
+            if [ -n "${findings}" ] && [ "${findings}" -gt 0 ]; then
+              echo "bandit reported ${findings} findings at or above severity ${BANDIT_SEVERITY_LEVEL}." >&2
+              status=1
+            fi
+          fi
+          exit "${status}"

@@ -1,0 +1,100 @@
+name: Bug report
+description: Report a reproducible defect in el-hidratador.
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Report the observable behaviour, not the intent. One defect per report.
+        If the defect is a security issue, use the private security policy
+        instead of this form.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happens
+      description: What the tool does, and what you expected it to do instead.
+      placeholder: |
+        `hidratador status` reports an empty ledger even though
+        `hidratador task-add` returned success.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      description: The exact commands, in order, from a clean state.
+      placeholder: |
+        1. `pip install -e .`
+        2. `hidratador init --db /tmp/ledger.sqlite`
+        3. `hidratador task-add M-1 --objective "x" --acceptance "y"`
+        4. `hidratador status --db /tmp/ledger.sqlite`
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+      description: What the correct output or exit code would be.
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: macOS 15.3, Ubuntu 24.04, Windows 11
+    validations:
+      required: true
+
+  - type: input
+    id: python-version
+    attributes:
+      label: Python version
+      placeholder: 3.12.4
+    validations:
+      required: true
+
+  - type: input
+    id: tool-version
+    attributes:
+      label: el-hidratador version
+      description: The output of `hidratador --version`.
+      placeholder: 0.1.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: install-method
+    attributes:
+      label: Installation method
+      options:
+        - "pip install el-hidratador"
+        - "pip install -e ."
+        - "Source checkout with PYTHONPATH"
+        - "Other"
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: |
+        Relevant log output, traceback, or configuration. Use synthetic data
+        only. Do not paste transcripts, credentials, or private ticket data.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched the existing issues and did not find this defect reported.
+          required: true
+        - label: I did not include credentials, secrets, or private ticket data in this report.
+          required: true

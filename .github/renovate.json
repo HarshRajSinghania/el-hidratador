@@ -1,0 +1,33 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "schedule": [
+    "before 4am on monday"
+  ],
+  "lockFileMaintenance": {
+    "enabled": false
+  },
+  "vulnerabilityAlerts": {
+    "enabled": true
+  },
+  "labels": [
+    "dependencies"
+  ],
+  "packageRules": [
+    {
+      "description": "Group the tooling updates that belong together.",
+      "matchPackageNames": [
+        "pytest",
+        "pytest-*",
+        "hypothesis",
+        "mypy",
+        "mypy-*",
+        "types-*",
+        "ruff"
+      ],
+      "groupName": "python tooling"
+    }
+  ]
+}

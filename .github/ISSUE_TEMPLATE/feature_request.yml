@@ -1,0 +1,77 @@
+name: Feature request
+description: Propose a change to the context expansion and execution staging pipeline.
+title: "[Feature]: "
+labels: ["feature", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe the outcome the change should produce. A proposal that can be
+        measured is easier to accept than a proposal that lists features.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What is missing or wrong today, and who it affects.
+      placeholder: >
+        Repeated context is re-expanded by hand for every handoff, and the
+        repeated part is not observable in the ledger.
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: What you would build, in terms of observable behaviour.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other approaches, including leaving the behaviour unchanged.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: layer
+    attributes:
+      label: Pipeline layer affected
+      options:
+        - Core ledger
+        - Context expansion
+        - DAG
+        - Sandbox
+        - Hardware routing
+        - GitHub sync
+        - Dashboard preview
+        - CLI
+        - Docs
+    validations:
+      required: true
+
+  - type: textarea
+    id: privacy
+    attributes:
+      label: Privacy and telemetry impact
+      description: |
+        State explicitly whether the change adds network access, telemetry,
+        local state, or credential handling. The core stays standard library
+        only and does not phone home.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched the existing issues and discussions for this proposal.
+          required: true
+        - label: I did not include credentials, secrets, or private ticket data in this proposal.
+          required: true
+        - label: The proposal keeps eligibility, authorization, execution, and acceptance as separate steps.
+          required: true

@@ -1,0 +1,12 @@
+# Default owner for everything in this repository.
+* @hamanakam1
+
+# Ledger, CLI and the adapters that touch external systems.
+el_hidratador/core.py @hamanakam1
+el_hidratador/cli.py @hamanakam1
+el_hidratador/github_sync.py @hamanakam1
+el_hidratador/sandbox.py @hamanakam1
+
+# Automation and documentation.
+.github/ @hamanakam1
+docs/ @hamanakam1

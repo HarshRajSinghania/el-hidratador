@@ -1,0 +1,75 @@
+name-template: "v$RESOLVED_VERSION"
+tag-template: "v$RESOLVED_VERSION"
+
+version-template: "$MAJOR.$MINOR.$PATCH"
+
+categories:
+  - title: "Features"
+    labels:
+      - "feat"
+      - "feature"
+      - "area/cli"
+      - "area/context"
+      - "area/dag"
+    collapse-after: 3
+
+  - title: "Fixes"
+    labels:
+      - "fix"
+      - "bug"
+    collapse-after: 3
+
+  - title: "Documentation"
+    labels:
+      - "docs"
+      - "documentation"
+      - "area/docs"
+    collapse-after: 3
+
+  - title: "Tests"
+    labels:
+      - "test"
+      - "area/tests"
+    collapse-after: 3
+
+  - title: "Automation"
+    labels:
+      - "ci"
+      - "area/ci"
+      - "dependencies"
+    collapse-after: 3
+
+  - title: "Refactoring"
+    labels:
+      - "refactor"
+      - "perf"
+    collapse-after: 3
+
+change-template: "- $TITLE (#$NUMBER) @$AUTHOR"
+change-title-escapes: '\<*_&'
+
+exclude-labels:
+  - "skip-changelog"
+
+no-contributors: true
+no-changes-template: "No user facing changes in this release."
+
+autolabeler:
+  - label: "area/cli"
+    branch: "/^feat(\\(.*\\))?(\\/cli)?$/"
+  - label: "area/context"
+    branch: "/^feat(\\(.*\\))?(\\/context)?$/"
+  - label: "area/dag"
+    branch: "/^feat(\\(.*\\))?(\\/dag)?$/"
+  - label: "area/sandbox"
+    branch: "/^feat(\\(.*\\))?(\\/sandbox)?$/"
+  - label: "area/github"
+    branch: "/^feat(\\(.*\\))?(\\/github)?$/"
+  - label: "area/ledger"
+    branch: "/^feat(\\(.*\\))?(\\/ledger)?$/"
+  - label: "area/docs"
+    branch: "/^docs(\\(.*\\))?$/"
+  - label: "area/tests"
+    branch: "/^test(\\(.*\\))?$/"
+  - label: "area/ci"
+    branch: "/^ci(\\(.*\\))?$/"

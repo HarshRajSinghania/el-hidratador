@@ -1,0 +1,51 @@
+{
+  "cap_drop": [
+    "ALL"
+  ],
+  "command": [
+    "sleep",
+    "infinity"
+  ],
+  "created": false,
+  "environment": {
+    "HIDRATADOR_OWNER": "terminal-1",
+    "HIDRATADOR_TASK_ID": "M-1001",
+    "PYTHONPATH": "/workspace",
+    "PYTHONUNBUFFERED": "1"
+  },
+  "image": "python:3.12-slim",
+  "mounts": [
+    {
+      "mode": "rw",
+      "purpose": "working tree",
+      "source": "/srv/hidratador/work/M-1001",
+      "target": "/workspace"
+    },
+    {
+      "mode": "ro",
+      "purpose": "reference checkout",
+      "source": "/srv/repos/api",
+      "target": "/repo"
+    },
+    {
+      "mode": "ro",
+      "purpose": "immutable log",
+      "source": "/srv/hidratador/evidence/M-1001",
+      "target": "/evidence"
+    }
+  ],
+  "network": "none",
+  "provenance": "declared staging boundary; not a running container",
+  "read_only_root": true,
+  "resources": {
+    "cpus": "2.0",
+    "memory": "4g",
+    "pids": 512
+  },
+  "security_opt": [
+    "no-new-privileges:true"
+  ],
+  "spec_hash": "94b8459bf51d0eff",
+  "task_id": "M-1001",
+  "workdir": "/srv/hidratador/work/M-1001"
+}

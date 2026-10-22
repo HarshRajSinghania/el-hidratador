@@ -1,0 +1,67 @@
+name: Documentation improvement
+description: Report missing, unclear, or incorrect documentation.
+title: "[Docs]: "
+labels: ["documentation", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Documentation changes follow the same boundaries as code changes:
+        state what is wrong, state the correction, and keep the wording
+        precise.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What needs improvement
+      description: The section, command, or statement that is missing, unclear, or wrong.
+      placeholder: >
+        The `hidratador status` section does not say which fields are
+        measured and which are declared.
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested change
+      description: The replacement or addition you propose, as text.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: audience
+    attributes:
+      label: Target audience
+      options:
+        - New user
+        - Operator
+        - Contributor
+        - Integrator
+        - Maintainer
+    validations:
+      required: true
+
+  - type: dropdown
+    id: location
+    attributes:
+      label: Suggested location
+      options:
+        - README.md
+        - docs/ usage guide
+        - docs/ architecture notes
+        - docs/ reference
+        - Command help text
+        - CONTRIBUTING.md
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched the existing issues for this documentation problem.
+          required: true
+        - label: I did not include credentials, secrets, or private ticket data in this report.
+          required: true

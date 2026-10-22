@@ -1,0 +1,110 @@
+name: Publish to PyPI
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Validate the distribution without uploading it to PyPI"
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-pypi-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: build and publish to PyPI
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write
+    environment:
+      name: pypi
+      url: https://pypi.org/project/el-hidratador/
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install build tooling
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install build twine
+
+      - name: Build the distribution
+        run: python -m build --sdist --wheel --outdir dist/
+
+      - name: Check the distribution metadata
+        run: twine check dist/*
+
+      - name: Validate the wheel without publishing
+        if: ${{ inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          python -m venv .dry-run-venv
+          .dry-run-venv/bin/python -m pip install --upgrade pip
+          .dry-run-venv/bin/python -m pip install dist/*.whl
+          .dry-run-venv/bin/hidratador --help
+
+      - name: Publish to PyPI
+        # `inputs.dry_run` is only defined for workflow_dispatch. On a tag
+        # push it is empty, so the publish step runs; on a manual run it
+        # defaults to true and the publish step is skipped.
+        id: publish
+        # The step only runs when a PyPI credential is configured. Without the
+        # secret the build still happens and the run still reports a validated
+        # distribution, so a tag push is never a hard failure for a repository
+        # that has not been registered on PyPI yet.
+        if: ${{ !inputs.dry_run && secrets.PYPI_API_TOKEN != '' }}
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          repository-url: https://upload.pypi.org/legacy/
+          packages-dir: dist/
+          skip-existing: true
+          print-hash: true
+          verbose: true
+          attestations: true
+
+      - name: Write the publish summary
+        if: always()
+        env:
+          DRY_RUN: ${{ inputs.dry_run }}
+          PUBLISH_OUTCOME: ${{ steps.publish.outcome }}
+        run: |
+          set -euo pipefail
+          {
+            echo "## Publish to PyPI"
+            echo
+            if [ "${DRY_RUN}" = "true" ]; then
+              echo "Dry run: the distribution was built and validated, nothing was uploaded."
+            elif [ "${PUBLISH_OUTCOME}" = "success" ]; then
+              echo "The distribution was uploaded to PyPI."
+            elif [ "${PUBLISH_OUTCOME}" = "skipped" ]; then
+              echo "The publish step was skipped."
+            else
+              echo "The publish step did not complete successfully (outcome: ${PUBLISH_OUTCOME})."
+            fi
+            echo
+            echo "Artifacts:"
+            echo
+            ls -1 dist/ || echo "no artifacts were built"
+          } >> "$GITHUB_STEP_SUMMARY"
